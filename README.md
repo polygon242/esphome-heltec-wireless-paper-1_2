@@ -1,16 +1,18 @@
 # ESPHome Heltec Wireless Paper Display Component
 
-Custom ESPHome display component for the **Heltec Wireless Paper** board (V1.1+).
+Custom ESPHome display component for the **Heltec Wireless Paper** board, modified to run with the hardware V1.2.
+It is based on the Repro of https://github.com/RonnyHempel1981 and modified with the info from https://github.com/CyberBasti .
 
-The Heltec Wireless Paper uses a 2.13" e-paper display with a **JD79656 controller** (Fitipower) that speaks the UC8151D command set. The standard ESPHome `waveshare_epaper` models all use SSD1680 commands and do **not** work with this display.
+
+The Heltec Wireless Paper uses a 2.13" e-paper display with a **V1.2 HT_E0213A367 — SSD1682, 122 source x 250 gate**  
 
 ## Hardware
 
 | Feature | Details |
 |---------|---------|
 | MCU | ESP32-S3 |
-| Display | 2.13" e-paper (DEPG0213BNS800 / LCMEN2R13EFC1) |
-| Controller | JD79656 (UC8151D compatible) |
+| Display | 2.13" e-paper (V1.2 = HT_E0213A367) |
+| Controller | V1.2 = SSD1682 |
 | Resolution | 250 x 122 (landscape) / 122 x 250 (portrait) |
 | Colors | Black / White |
 | Interface | SPI |
@@ -35,11 +37,9 @@ Add to your ESPHome YAML:
 
 ```yaml
 external_components:
-  - source:
-      type: git
-      url: https://github.com/RonnyHempel1981/esphome-heltec-wireless-paper
-      ref: main
-    components: [heltec_wireless_paper]
+  - source: github://polygon242/esphome-heltec-wireless-paper-1_2@Fix-for-V1.2
+    components: [heltec_wireless_paper_v12]
+    refresh: 0s
 ```
 
 ## Full Example
@@ -137,9 +137,14 @@ display:
 - `90` - Landscape 250x122 (USB port on left)
 - `270` - Landscape 250x122 (USB port on right, recommended)
 
+### New in V1.2  
+new border_full / border_fast options, exposing the 0x3C border waveform to
+YAML. Heltec's 0x01 / 0x81 leave the border white, 0x00 / 0x80 make it
+black. Defaults keep the existing behaviour.
+
 ## Notes
 
-- `board_build.flash_mode: dio` is required to prevent boot loops on the ESP32-S3.
+- `board_build.flash_mode: dio` is required to prevent boot loops on the ESP32-S3.  -> not needed?
 - `hardware_uart: UART0` is required for serial logging.
 - `full_update_every` controls how often a full e-paper refresh cycle is performed. Lower values reduce ghosting but cause more flicker.
 - All standard ESPHome [display drawing functions](https://esphome.io/components/display/) are supported: `print`, `printf`, `line`, `rectangle`, `circle`, `image`, etc.
