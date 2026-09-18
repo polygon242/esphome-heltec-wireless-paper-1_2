@@ -5,7 +5,7 @@
 #include "esphome/components/display/display_buffer.h"
 
 namespace esphome {
-namespace heltec_wireless_paper {
+namespace heltec_wireless_paper_v12 {
 
 /// ESPHome display driver for the Heltec Wireless Paper V1.2 (SSD1682 controller).
 /// Visible resolution: 122 x 250 (portrait). Use rotation: 90 or 270 for 250x122 landscape.
