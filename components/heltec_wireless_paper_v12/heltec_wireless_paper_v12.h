@@ -25,7 +25,7 @@ namespace heltec_wireless_paper_v12 {
 /// GPIO45 (Vext, active LOW) must be enabled before this component initializes
 /// to power the display. Configure it as a gpio switch with inverted: true and
 /// restore_mode: ALWAYS_ON.
-class HeltecWirelessPaper : public display::DisplayBuffer,
+class HeltecWirelessPaperV12 : public display::DisplayBuffer,
                             public spi::SPIDevice<spi::BIT_ORDER_MSB_FIRST, spi::CLOCK_POLARITY_LOW,
                                                   spi::CLOCK_PHASE_LEADING, spi::DATA_RATE_4MHZ> {
  public:
