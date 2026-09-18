@@ -1,13 +1,13 @@
-#include "heltec_wireless_paper.h"
+#include "heltec_wireless_paper_v12.h"
 #include "esphome/core/log.h"
 #include "esphome/core/application.h"
 
 namespace esphome {
-namespace heltec_wireless_paper {
+namespace heltec_wireless_paper_v12 {
 
-static const char *const TAG = "heltec_wireless_paper";
+static const char *const TAG = "heltec_wireless_paper_v12";
 
-void HeltecWirelessPaper::setup() {
+void HeltecWirelessPaperV12::setup() {
   this->dc_pin_->setup();
   this->dc_pin_->digital_write(false);
 
@@ -28,7 +28,7 @@ void HeltecWirelessPaper::setup() {
 }
 
 // SSD1682 initialisation. Panel: HT_E0213A367, 122 source x 250 gate.
-void HeltecWirelessPaper::init_display_() {
+void HeltecWirelessPaperV12::init_display_() {
   this->reset_();
 
   // Software reset
@@ -66,7 +66,7 @@ void HeltecWirelessPaper::init_display_() {
 // Selects which waveform the controller uses. Command 0x37 is undocumented;
 // the values are Heltec's. Without it no display mode is selected and the
 // refresh moves no pixels.
-void HeltecWirelessPaper::config_waveform_(bool fast) {
+void HeltecWirelessPaperV12::config_waveform_(bool fast) {
   this->command_(0x37);
   this->data_(0x40);
   this->data_(0x80);
@@ -78,7 +78,7 @@ void HeltecWirelessPaper::config_waveform_(bool fast) {
   this->data_(fast ? this->border_fast_ : this->border_full_);
 }
 
-void HeltecWirelessPaper::set_ram_pointer_() {
+void HeltecWirelessPaperV12::set_ram_pointer_() {
   // RAM X address counter
   this->command_(0x4E);
   this->data_(0x00);
@@ -88,19 +88,19 @@ void HeltecWirelessPaper::set_ram_pointer_() {
   this->data_(0x00);
 }
 
-void HeltecWirelessPaper::write_ram_(uint8_t command) {
+void HeltecWirelessPaperV12::write_ram_(uint8_t command) {
   this->set_ram_pointer_();
   this->command_(command);
   this->data_array_(this->buffer_, this->get_buffer_length_());
   App.feed_wdt();
 }
 
-void HeltecWirelessPaper::update() {
+void HeltecWirelessPaperV12::update() {
   this->do_update_();
   this->send_buffer_();
 }
 
-void HeltecWirelessPaper::send_buffer_() {
+void HeltecWirelessPaperV12::send_buffer_() {
   bool full = (this->update_count_ % this->full_update_every_) == 0;
   this->update_count_++;
 
@@ -138,7 +138,7 @@ void HeltecWirelessPaper::send_buffer_() {
   }
 }
 
-void HeltecWirelessPaper::draw_absolute_pixel_internal(int x, int y, Color color) {
+void HeltecWirelessPaperV12::draw_absolute_pixel_internal(int x, int y, Color color) {
   if (x < 0 || x >= VISIBLE_WIDTH || y < 0 || y >= NATIVE_HEIGHT)
     return;
 
@@ -152,19 +152,19 @@ void HeltecWirelessPaper::draw_absolute_pixel_internal(int x, int y, Color color
   }
 }
 
-void HeltecWirelessPaper::fill(Color color) {
+void HeltecWirelessPaperV12::fill(Color color) {
   uint8_t fill = color.is_on() ? 0x00 : 0xFF;
   memset(this->buffer_, fill, this->get_buffer_length_());
 }
 
-void HeltecWirelessPaper::command_(uint8_t cmd) {
+void HeltecWirelessPaperV12::command_(uint8_t cmd) {
   this->dc_pin_->digital_write(false);
   this->enable();
   this->write_byte(cmd);
   this->disable();
 }
 
-void HeltecWirelessPaper::data_(uint8_t val) {
+void HeltecWirelessPaperV12::data_(uint8_t val) {
   this->dc_pin_->digital_write(true);
   this->enable();
   this->write_byte(val);
@@ -174,7 +174,7 @@ void HeltecWirelessPaper::data_(uint8_t val) {
 // Chunked bulk transfer. Byte-wise writing works too but takes seconds for
 // 4000 bytes; 1 kB blocks stay well inside the ESP-IDF transaction limits.
 // If the image ever comes out scrambled, drop CHUNK to 1 to go byte-wise.
-void HeltecWirelessPaper::data_array_(const uint8_t *data, size_t len) {
+void HeltecWirelessPaperV12::data_array_(const uint8_t *data, size_t len) {
   static const size_t CHUNK = 1024;
   this->dc_pin_->digital_write(true);
   for (size_t offset = 0; offset < len; offset += CHUNK) {
@@ -189,7 +189,7 @@ void HeltecWirelessPaper::data_array_(const uint8_t *data, size_t len) {
 // BUSY is HIGH while the controller is working (Solomon Systech logic).
 // Short operations may already be finished when we get here - normal, not an
 // error, so it is only logged at debug level.
-void HeltecWirelessPaper::wait_busy_(uint32_t timeout_ms, const char *what) {
+void HeltecWirelessPaperV12::wait_busy_(uint32_t timeout_ms, const char *what) {
   if (this->busy_pin_ == nullptr) {
     delay(2000);
     return;
@@ -223,7 +223,7 @@ void HeltecWirelessPaper::wait_busy_(uint32_t timeout_ms, const char *what) {
 }
 
 // RESET is active low.
-void HeltecWirelessPaper::reset_() {
+void HeltecWirelessPaperV12::reset_() {
   if (this->reset_pin_ == nullptr) {
     delay(20);
     return;
@@ -238,7 +238,7 @@ void HeltecWirelessPaper::reset_() {
   this->wait_busy_(2000, "hw reset");
 }
 
-void HeltecWirelessPaper::dump_config() {
+void HeltecWirelessPaperV12::dump_config() {
   LOG_DISPLAY("", "Heltec Wireless Paper V1.2 (SSD1682 / E0213A367)", this);
   ESP_LOGCONFIG(TAG, "  Visible: %dx%d, RAM: %dx%d, Buffer: %lu bytes", VISIBLE_WIDTH, NATIVE_HEIGHT, NATIVE_WIDTH,
                 NATIVE_HEIGHT, (unsigned long) this->get_buffer_length_());
