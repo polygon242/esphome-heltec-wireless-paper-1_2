@@ -16,9 +16,9 @@ DEPENDENCIES = ["spi"]
 CONF_BORDER_FULL = "border_full"
 CONF_BORDER_FAST = "border_fast"
 
-heltec_wireless_paper_ns = cg.esphome_ns.namespace("heltec_wireless_paper")
-HeltecWirelessPaper = heltec_wireless_paper_ns.class_(
-    "HeltecWirelessPaper",
+heltec_wireless_paper_ns = cg.esphome_ns.namespace("heltec_wireless_paper_v12")
+HeltecWirelessPaperV12 = heltec_wireless_paper_ns.class_(
+    "HeltecWirelessPaperV12",
     cg.PollingComponent,
     spi.SPIDevice,
     display.DisplayBuffer,
@@ -27,7 +27,7 @@ HeltecWirelessPaper = heltec_wireless_paper_ns.class_(
 CONFIG_SCHEMA = cv.All(
     display.FULL_DISPLAY_SCHEMA.extend(
         {
-            cv.GenerateID(): cv.declare_id(HeltecWirelessPaper),
+            cv.GenerateID(): cv.declare_id(HeltecWirelessPaperV12),
             cv.Required(CONF_DC_PIN): pins.gpio_output_pin_schema,
             cv.Optional(CONF_RESET_PIN): pins.gpio_output_pin_schema,
             cv.Optional(CONF_BUSY_PIN): pins.gpio_input_pin_schema,
